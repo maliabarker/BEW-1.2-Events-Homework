@@ -2,7 +2,7 @@
 import os
 from flask import Flask, Blueprint, request, render_template, redirect, url_for, flash
 from datetime import date, datetime
-from events_app.models import Event, Guest
+from events_app.models import Event, Guest, EventType
 from flask import current_app as app
 
 # Import app and db from events_app package so that we can run app
@@ -23,9 +23,9 @@ def index():
 
     # TODO: Get all events and send to the template
     all_events = Event.query.all()
-    print(all_events)
-    print(all_events[0].title)
-    print(all_events[0].guests)
+    # print(all_events)
+    # print(all_events[0].title)
+    # print(all_events[0].guests)
     return render_template('index.html', events=all_events)
 
 
@@ -37,17 +37,30 @@ def create():
         new_event_description = request.form.get('description')
         date = request.form.get('date')
         time = request.form.get('time')
+        # event_type = request.form.get('event_type')
+        # print(event_type)
+        print(date)
 
         try:
             date_and_time = datetime.strptime(
                 f'{date} {time}',
                 '%Y-%m-%d %H:%M')
+            print(date_and_time)
         except ValueError:
             return render_template('create.html', 
                 error='Incorrect datetime format! Please try again.')
 
         # TODO: Create a new event with the given title, description, & 
         # datetime, then add and commit to the database
+        new_event = Event(
+            title=new_event_title, 
+            description=new_event_description, 
+            date_and_time=date_and_time,
+            # event_type=EventType.event_type
+            )
+
+        db.session.add(new_event)
+        db.session.commit()
 
         flash('Event created.')
         return redirect(url_for('main.index'))
@@ -60,8 +73,9 @@ def event_detail(event_id):
     """Show a single event."""
 
     # TODO: Get the event with the given id and send to the template
-    
-    return render_template('event_detail.html')
+    event = Event.query.filter_by(id=event_id).one()
+    print(event)
+    return render_template('event_detail.html', event=event)
 
 
 @main.route('/event/<event_id>', methods=['POST'])
