@@ -1,13 +1,16 @@
 """Import packages and modules."""
 import os
-from flask import Blueprint, request, render_template, redirect, url_for, flash
+from flask import Flask, Blueprint, request, render_template, redirect, url_for, flash
 from datetime import date, datetime
 from events_app.models import Event, Guest
+from flask import current_app as app
 
 # Import app and db from events_app package so that we can run app
 from events_app import app, db
 
 main = Blueprint('main', __name__)
+
+db.init_app(app)
 
 
 ##########################################
@@ -19,8 +22,11 @@ def index():
     """Show upcoming events to users!"""
 
     # TODO: Get all events and send to the template
-    
-    return render_template('index.html')
+    all_events = Event.query.all()
+    print(all_events)
+    print(all_events[0].title)
+    print(all_events[0].guests)
+    return render_template('index.html', events=all_events)
 
 
 @main.route('/create', methods=['GET', 'POST'])
