@@ -71,6 +71,7 @@ def create():
     else:
         return render_template('create.html')
 
+'''ROUTE TO SHOW SINGLE EVENT'''
 @main.route('/event/<event_id>', defaults={'error': None})
 @main.route('/event/<event_id>/<error>', methods=['GET'])
 def event_detail(event_id, error):
@@ -80,6 +81,37 @@ def event_detail(event_id, error):
     print(f'error: {error}')
     return render_template('event_detail.html', event=event, error=error)
 
+'''ROUTE TO EDIT SINGLE EVENT'''
+@main.route('/event/<event_id>/edit', methods=['GET', 'POST'])
+def event_edit(event_id):
+    if request.method == 'POST':
+        print('POSTING')
+        event = Event.query.filter_by(id=event_id).one()
+        updated_title = request.form.get('title')
+        updated_description = request.form.get('description')
+        updated_date = request.form.get('date')
+        updated_time = request.form.get('time')
+        try:
+            updated_date_and_time = datetime.strptime(
+                f'{updated_date} {updated_time}',
+                '%Y-%m-%d %H:%M')
+
+        except ValueError:
+            return render_template('create.html', 
+                error='Incorrect datetime format! Please try again.')
+        event.title = updated_title
+        event.description = updated_description
+        event.date_and_time = updated_date_and_time
+        db.session.commit()
+        flash(f'Successfully updated {event.title}')
+        return redirect(url_for('main.event_detail', event_id=event_id))
+
+    elif request.method == 'GET':
+        event = Event.query.filter_by(id=event_id).one()
+        print(event)
+        return render_template('event_edit.html', event=event)
+
+'''ROUTE TO ADD GUEST TO EVENT (UPDATES GUEST_EVENTS TABLE) POSTS TO SHOW SINGLE EVENT PAGE'''
 @main.route('/event/<event_id>', defaults={'error': None}, methods=['POST'])
 @main.route('/event/<event_id>/<error>', methods=['POST'])
 def rsvp(event_id, error):

@@ -2,19 +2,19 @@
 
 {% block content %}
 <a href="/">← Home</a>
-<h1>New Event</h1>
+<h1>Edit {{ event.title }} </h1>
 
 <form method="POST">
     <p>
         <label>
             Event Title:
-            <input type="text" name="title">
+            <input type="text" name="title" value="{{event.title}}">
         </label>
     </p>
     <p>
         <label>
             Event Description: <br>
-            <textarea name="description"></textarea>
+            <textarea name="description">{{ event.description }}</textarea>
         </label>
     </p>
     {% if error %}
@@ -24,8 +24,8 @@
         
         <label>
             Date and Time: <br>
-            <input type="date" name="date" placeholder="Date format YYYY-mm-dd">
-            <input type="time" name="time" placeholder="Time format HH:MM">
+            <input type="date" name="date" placeholder="{{ event.date_and_time.strftime('%Y-%m-%d') }}" value="{{ event.date_and_time.strftime('%Y-%m-%d') }}">
+            <input type="time" name="time" placeholder="Time format HH:MM" value="{{ event.date_and_time.strftime('%H:%M') }}">
         </label>
     </p>
     <!-- <p>
