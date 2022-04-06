@@ -22,7 +22,11 @@ def index():
     """Show upcoming events to users!"""
 
     # TODO: Get all events and send to the template
-    all_events = Event.query.all()
+    try:
+        all_events = Event.query.all()
+    except:
+        flash('No Events, Create One!')
+        return render_template('index.html', events=None)
     # print(all_events)
     # print(all_events[0].title)
     # print(all_events[0].guests)
@@ -67,21 +71,21 @@ def create():
     else:
         return render_template('create.html')
 
-
-@main.route('/event/<event_id>', methods=['GET'])
-def event_detail(event_id):
+@main.route('/event/<event_id>', defaults={'error': None})
+@main.route('/event/<event_id>/<error>', methods=['GET'])
+def event_detail(event_id, error):
     """Show a single event."""
-
     # TODO: Get the event with the given id and send to the template
     event = Event.query.filter_by(id=event_id).one()
-    print(event)
-    return render_template('event_detail.html', event=event)
+    print(f'error: {error}')
+    return render_template('event_detail.html', event=event, error=error)
 
-
-@main.route('/event/<event_id>', methods=['POST'])
-def rsvp(event_id):
+@main.route('/event/<event_id>', defaults={'error': None}, methods=['POST'])
+@main.route('/event/<event_id>/<error>', methods=['POST'])
+def rsvp(event_id, error):
     """RSVP to an event."""
     # TODO: Get the event with the given id from the database
+    event = Event.query.filter_by(id=event_id).one()
     is_returning_guest = request.form.get('returning')
     guest_name = request.form.get('guest_name')
 
@@ -91,15 +95,28 @@ def rsvp(event_id):
         # message as `error`.
 
         # TODO: If the guest does exist, add the event to their 
-        # events_attending, then commit to the database.
-        pass
+        # events_attending, then commit to the database
+        try:
+            guest = Guest.query.filter_by(name=guest_name).one()
+            print(guest)
+        except:
+            print('NO USER FOUND AHHHHH')
+            error = 'ERROR: No user found, please enter your email and phone on the RSVP form'
+            print(error)
+            return redirect(url_for('main.event_detail', event_id=event_id, error=error))
     else:
         guest_email = request.form.get('email')
         guest_phone = request.form.get('phone')
+        guest = Guest(name=guest_name, email=guest_email, phone=guest_phone)
 
         # TODO: Create a new guest with the given name, email, and phone, and 
         # add the event to their events_attending, then commit to the database.
-        pass
+    guest.events_attending.append(event)
+    print(guest)
+    print(guest.events_attending)
+
+    db.session.add(guest)
+    db.session.commit()
     
     flash('You have successfully RSVP\'d! See you there!')
     return redirect(url_for('main.event_detail', event_id=event_id))
@@ -108,5 +125,9 @@ def rsvp(event_id):
 @main.route('/guest/<guest_id>')
 def guest_detail(guest_id):
     # TODO: Get the guest with the given id and send to the template
+    try:
+        guest = Guest.query.filter_by(id=guest_id).one()
+    except:
+        print('Guest was not found')
     
-    return render_template('guest_detail.html')
+    return render_template('guest_detail.html', guest=guest)
