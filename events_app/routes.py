@@ -41,9 +41,9 @@ def create():
         new_event_description = request.form.get('description')
         date = request.form.get('date')
         time = request.form.get('time')
-        # event_type = request.form.get('event_type')
-        # print(event_type)
-        print(date)
+        event_type = request.form.get('event_type')
+        print(event_type)
+        # print(date)
 
         try:
             date_and_time = datetime.strptime(
@@ -60,9 +60,9 @@ def create():
             title=new_event_title, 
             description=new_event_description, 
             date_and_time=date_and_time,
-            # event_type=EventType.event_type
+            event_type=event_type
             )
-
+        print(new_event.event_type)
         db.session.add(new_event)
         db.session.commit()
 
@@ -110,6 +110,17 @@ def event_edit(event_id):
         event = Event.query.filter_by(id=event_id).one()
         print(event)
         return render_template('event_edit.html', event=event)
+
+'''ROUTE TO DELETE AN EVENT'''
+@main.route('/event/<event_id>/delete', methods=['GET', 'POST'])
+def event_delete(event_id):
+    event = Event.query.filter_by(id=event_id).one()
+    print(event)
+    db.session.delete(event)
+    db.session.commit()
+    flash(f'Deleted {event.title} from all events')
+    return redirect(url_for('main.index'))
+
 
 '''ROUTE TO ADD GUEST TO EVENT (UPDATES GUEST_EVENTS TABLE) POSTS TO SHOW SINGLE EVENT PAGE'''
 @main.route('/event/<event_id>', defaults={'error': None}, methods=['POST'])

@@ -9,11 +9,24 @@
     correct title, description, date, time, and number of guests
 -->
 
+<!-- <div class="container" style="z-index: 0; position: relative;"> -->
 
+<div id="content-container">
 <h1 class="pt-4">{{event.title}}</h1>
-<a href="/event/{{event.id}}/edit">+ Edit Event</a>
+<div class="container py-2">
+    <div class="row justify-content-start">
+        <div class="col-2">
+            <a href="/event/{{event.id}}/edit" class="text-info">+ Edit Event</a>
+        </div>
+        <div class="col-2">
+            <a href="/event/{{event.id}}/delete" class="text-danger">- Delete Event</a>
+        </div>
+    </div>
+</div>
 
-<p>{{event.description}}</p>
+
+
+<p class="py-2" id="event_desc">{{event.description}}</p>
 
 <p><strong>Date:</strong> {{event.date_and_time.strftime('%A %B %d, %Y')}}</p>
 <p><strong>Time:</strong> {{event.date_and_time.strftime('%I:%M %p')}}</p>
@@ -88,5 +101,22 @@
         <li><a href="/guest/{{ guest.id }}">{{guest.name}}</a></li>
     {% endfor %}
 </ul>
+</div>
+
+<!-- {% if event.event_type == 'EventType.PARTY' %}
+
+    <div class="balloon"></div>
+    <div class="balloon"></div>
+    <div class="balloon"></div>
+    <div class="balloon"></div>
+    <div class="balloon"></div>
+    <div class="balloon"></div>
+    <div class="balloon"></div>
+    <div class="balloon"></div>
+
+{% endif %} -->
+<!-- </div> -->
+
+
 
 {% endblock %}

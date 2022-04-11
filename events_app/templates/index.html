@@ -13,7 +13,7 @@
     {% for event in events %}
         <div class="event-container">
             <h3><a href="/event/{{ event.id }}">{{ event.title }}</a></h3>
-            <p><strong>Date:</strong> {{ event.date_and_time }}</p>
+            <p><strong>Date:</strong> {{event.date_and_time.strftime('%B %d, %Y %I:%M %p')}}</p>
             <p><strong>Description:</strong> {{ event.description }}</p>
             <p class="small-text">
                 {{ event.guests|length }} Attending
